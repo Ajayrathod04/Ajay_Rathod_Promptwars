@@ -92,7 +92,7 @@ BlindLens organizes reasoning into 6 purposeful surfaces:
 ## 8. TEST VERIFICATION & PERFORMANCE EVIDENCE
 
 [TECHNICAL EVIDENCE: Measured Build & Test Results]
-- **Vitest Suite (`npm test`)**: 4 test files, 9/9 unit and integration tests passing. Covers decision neutrality interception, prompt injection defense, offline fallback engine, and Ask the Lens queries.
+- **Vitest Suite (`npm test`)**: 6 test files, 13/13 unit and integration tests passing. Covers decision neutrality interception, prompt injection defense, offline fallback engine, scenario preset integrity, and Ask the Lens queries.
 - **TypeScript Check (`npm run typecheck`)**: `tsc --noEmit` returned **0 errors**.
 - **Production Build (`npm run build`)**: Vite production compilation in `23.92s`. Total gzip bundle size is **~66 kB** (`60.65 kB` JS + `5.72 kB` CSS).
 - **Repository Size**: 445.2 KB.

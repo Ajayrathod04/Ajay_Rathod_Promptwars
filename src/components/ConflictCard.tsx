@@ -6,7 +6,7 @@ interface ConflictCardProps {
   item: ConflictItem;
 }
 
-export const ConflictCard: React.FC<ConflictCardProps> = ({ item }) => {
+export const ConflictCard: React.FC<ConflictCardProps> = React.memo(({ item }) => {
   return (
     <div className="bg-white rounded-2xl border border-emerald-200 shadow-sm p-5 sm:p-6 space-y-4">
       <div className="flex items-center space-x-2 text-emerald-800 text-xs font-bold uppercase tracking-wider">
@@ -37,4 +37,4 @@ export const ConflictCard: React.FC<ConflictCardProps> = ({ item }) => {
       </div>
     </div>
   );
-};
+});

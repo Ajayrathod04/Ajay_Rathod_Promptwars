@@ -34,4 +34,12 @@ describe('Ask the Lens Contextual Chat & Neutrality Guard', () => {
     expect(response).toContain("conflict");
     expect(response).toBeDefined();
   });
+
+  it('provides evidence check and perspective guidance without recommendation', () => {
+    const query = "What evidence would resolve this?";
+    const response = processAskTheLensQuery(query, sampleInput, sampleAnalysis);
+
+    expect(response).toContain("evidence");
+    expect(response).not.toMatch(/i recommend/i);
+  });
 });

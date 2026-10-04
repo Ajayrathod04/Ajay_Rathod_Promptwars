@@ -270,12 +270,13 @@ d:/Blindlens/
 ## Testing & Verification
 
 Verified local and production test results:
-- **Test Suite**: 4 test files, 9/9 unit and integration tests passing (`Vitest v1.6.1`).
+- **Test Suite**: 6 test files, 13/13 unit and integration tests passing (`Vitest v1.6.1`).
 - **TypeScript Check**: `tsc --noEmit` returned **0 errors**.
-- **Production Build**: Successful Vite production compilation.
+- **Static Quality Lint**: `npm run lint` returned **0 errors**.
+- **Production Build**: Successful Vite production compilation with dynamic code splitting.
 - **Local Preview Smoke Test**: HTTP 200 OK.
 - **Production Live Test**: HTTP 200 OK on Vercel deployment.
-- **Test Scopes**: Decision neutrality interception, prompt injection defense, offline fallback engine, and contextual Ask the Lens chat.
+- **Test Scopes**: Decision neutrality interception, prompt injection defense, offline fallback engine, scenario preset integrity, questions rationale validation, and contextual Ask the Lens chat.
 
 ---
 

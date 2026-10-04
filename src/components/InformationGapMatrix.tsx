@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { InformationGapItem } from '../types/decision';
 import { CheckCircle2, HelpCircle, AlertCircle } from 'lucide-react';
 
@@ -6,10 +6,10 @@ interface InformationGapMatrixProps {
   items: InformationGapItem[];
 }
 
-export const InformationGapMatrix: React.FC<InformationGapMatrixProps> = ({ items }) => {
-  const known = items.filter((i) => i.status === 'KNOWN');
-  const assumed = items.filter((i) => i.status === 'ASSUMED');
-  const unknown = items.filter((i) => i.status === 'UNKNOWN');
+export const InformationGapMatrix: React.FC<InformationGapMatrixProps> = React.memo(({ items }) => {
+  const known = useMemo(() => items.filter((i) => i.status === 'KNOWN'), [items]);
+  const assumed = useMemo(() => items.filter((i) => i.status === 'ASSUMED'), [items]);
+  const unknown = useMemo(() => items.filter((i) => i.status === 'UNKNOWN'), [items]);
 
   return (
     <div className="bg-white rounded-2xl border border-canvas-200 p-5 sm:p-6 shadow-sm space-y-4">
@@ -82,4 +82,4 @@ export const InformationGapMatrix: React.FC<InformationGapMatrixProps> = ({ item
       </div>
     </div>
   );
-};
+});

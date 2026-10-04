@@ -1,11 +1,13 @@
-import { useState } from 'react';
+import { useState, useCallback, lazy, Suspense } from 'react';
 import { Header, NavigationTab } from './components/Header';
 import { DecisionForm } from './components/DecisionForm';
 import { AnalysisScreen } from './screens/AnalysisScreen';
-import { AskTheLensModal } from './components/AskTheLensModal';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { DecisionInput, BlindSpotAnalysis, ReassessmentDelta } from './types/decision';
 import { analyzeDecision } from './services/api';
+
+// Code splitting: Lazy-load AskTheLensModal to minimize initial chunk payload
+const AskTheLensModal = lazy(() => import('./components/AskTheLensModal').then(m => ({ default: m.AskTheLensModal })));
 
 export function App() {
   const [currentInput, setCurrentInput] = useState<DecisionInput | null>(null);
@@ -15,7 +17,7 @@ export function App() {
   const [activeTab, setActiveTab] = useState<NavigationTab>('frame');
   const [isAskTheLensOpen, setIsAskTheLensOpen] = useState(false);
 
-  const handleDecisionSubmit = async (input: DecisionInput) => {
+  const handleDecisionSubmit = useCallback(async (input: DecisionInput) => {
     setCurrentInput(input);
     setIsAnalyzing(true);
     setErrorMessage(null);
@@ -31,9 +33,9 @@ export function App() {
     } finally {
       setIsAnalyzing(false);
     }
-  };
+  }, []);
 
-  const handleReset = () => {
+  const handleReset = useCallback(() => {
     setCurrentInput(null);
     setAnalysis(null);
     setErrorMessage(null);
@@ -41,21 +43,31 @@ export function App() {
     setActiveTab('frame');
     setIsAskTheLensOpen(false);
     window.scrollTo({ top: 0, behavior: 'smooth' });
-  };
+  }, []);
 
-  const handleTabChange = (tab: NavigationTab) => {
+  const handleTabChange = useCallback((tab: NavigationTab) => {
     setActiveTab(tab);
     const element = document.getElementById(`surface-${tab}`);
     if (element) {
       element.scrollIntoView({ behavior: 'smooth' });
     }
-  };
+  }, []);
 
-  const handleReassessmentComplete = (delta: ReassessmentDelta) => {
-    if (analysis) {
-      setAnalysis(delta.updatedAnalysis);
-    }
-  };
+  const handleReassessmentComplete = useCallback((delta: ReassessmentDelta) => {
+    setAnalysis(delta.updatedAnalysis);
+  }, []);
+
+  const handleOpenAskTheLens = useCallback(() => {
+    setIsAskTheLensOpen(true);
+  }, []);
+
+  const handleCloseAskTheLens = useCallback(() => {
+    setIsAskTheLensOpen(false);
+  }, []);
+
+  const handleDismissError = useCallback(() => {
+    setErrorMessage(null);
+  }, []);
 
   return (
     <ErrorBoundary>
@@ -65,7 +77,7 @@ export function App() {
           isAnalyzing={isAnalyzing}
           activeTab={activeTab}
           onTabChange={handleTabChange}
-          onOpenAskTheLens={() => setIsAskTheLensOpen(true)}
+          onOpenAskTheLens={handleOpenAskTheLens}
           hasAnalysis={!!analysis}
         />
 
@@ -73,7 +85,7 @@ export function App() {
           {errorMessage && (
             <div className="mb-6 p-4 bg-rose-50 border border-rose-200 rounded-xl text-rose-800 text-sm flex items-center justify-between">
               <span>{errorMessage}</span>
-              <button onClick={() => setErrorMessage(null)} className="font-bold underline text-xs">Dismiss</button>
+              <button onClick={handleDismissError} className="font-bold underline text-xs">Dismiss</button>
             </div>
           )}
 
@@ -87,17 +99,19 @@ export function App() {
               analysis={analysis}
               onReset={handleReset}
               onReassessmentComplete={handleReassessmentComplete}
-              onOpenAskTheLens={() => setIsAskTheLensOpen(true)}
+              onOpenAskTheLens={handleOpenAskTheLens}
             />
           )}
 
-          {analysis && currentInput && (
-            <AskTheLensModal
-              isOpen={isAskTheLensOpen}
-              onClose={() => setIsAskTheLensOpen(false)}
-              input={currentInput}
-              analysis={analysis}
-            />
+          {analysis && currentInput && isAskTheLensOpen && (
+            <Suspense fallback={null}>
+              <AskTheLensModal
+                isOpen={isAskTheLensOpen}
+                onClose={handleCloseAskTheLens}
+                input={currentInput}
+                analysis={analysis}
+              />
+            </Suspense>
           )}
         </main>
 

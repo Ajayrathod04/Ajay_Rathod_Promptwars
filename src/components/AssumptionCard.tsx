@@ -7,8 +7,8 @@ interface AssumptionCardProps {
   index: number;
 }
 
-export const AssumptionCard: React.FC<AssumptionCardProps> = ({ item, index }) => {
-  const [isExpanded, setIsExpanded] = useState(index === 0); // Expand first by default
+export const AssumptionCard: React.FC<AssumptionCardProps> = React.memo(({ item, index }) => {
+  const [isExpanded, setIsExpanded] = useState(index === 0);
 
   return (
     <div className="bg-white rounded-xl border border-amber-200 shadow-sm overflow-hidden transition-all hover:border-amber-300">
@@ -71,4 +71,4 @@ export const AssumptionCard: React.FC<AssumptionCardProps> = ({ item, index }) =
       )}
     </div>
   );
-};
+});
