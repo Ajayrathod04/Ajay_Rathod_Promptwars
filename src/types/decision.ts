@@ -5,7 +5,16 @@ export interface DecisionInput {
   factors?: string;
   options?: string;
   constraints?: string;
+  scenarioCategory?: ScenarioCategory;
 }
+
+export type ScenarioCategory =
+  | 'Career'
+  | 'Education'
+  | 'Money'
+  | 'Relocation'
+  | 'Project'
+  | 'Personal';
 
 export interface AssumptionItem {
   id: string;
@@ -43,11 +52,19 @@ export interface PerspectiveItem {
   insight: string;
 }
 
+export type QuestionGroup =
+  | 'Missing Evidence'
+  | 'Assumption Check'
+  | 'Risk Check'
+  | 'Long-Term View'
+  | 'Alternative Perspective';
+
 export interface CriticalQuestionItem {
   id: string;
   question: string;
   targetArea: string;
   rationale: string;
+  group?: QuestionGroup;
 }
 
 export interface InformationGapItem {
@@ -89,6 +106,14 @@ export interface ReassessmentDelta {
 export interface PresetExample {
   id: string;
   title: string;
+  category: ScenarioCategory;
   description: string;
   input: DecisionInput;
+}
+
+export interface ChatMessage {
+  id: string;
+  sender: 'user' | 'lens';
+  text: string;
+  timestamp: string;
 }

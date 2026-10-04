@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { BlindSpotAnalysis } from '../types/decision';
 import { HelpCircle, AlertTriangle, Scale, EyeOff, CheckCircle2 } from 'lucide-react';
 
@@ -6,23 +6,32 @@ interface LensVisualizationProps {
   decisionTitle: string;
   analysis?: BlindSpotAnalysis;
   isAnalyzing?: boolean;
+  onSelectNode?: (nodeKey: 'assumptions' | 'missing' | 'risks' | 'conflicts' | 'questions') => void;
 }
 
 export const LensVisualization: React.FC<LensVisualizationProps> = ({
   decisionTitle,
   analysis,
   isAnalyzing = false,
+  onSelectNode,
 }) => {
+  const [activeNode, setActiveNode] = useState<string | null>(null);
+
   const assumptionsCount = analysis?.assumptions.length || 3;
   const missingCount = analysis?.missingFactors.length || 2;
   const risksCount = analysis?.risks.length || 2;
   const conflictsCount = analysis?.conflicts.length || 1;
   const questionsCount = analysis?.criticalQuestions.length || 3;
 
+  const handleNodeClick = (nodeKey: 'assumptions' | 'missing' | 'risks' | 'conflicts' | 'questions') => {
+    setActiveNode(nodeKey);
+    onSelectNode?.(nodeKey);
+  };
+
   return (
-    <div className="relative w-full max-w-lg mx-auto my-8 p-6 bg-white rounded-3xl border border-canvas-200 shadow-sm flex flex-col items-center justify-center overflow-hidden">
+    <div className="relative w-full max-w-lg mx-auto my-6 p-6 bg-white rounded-3xl border border-canvas-200 shadow-sm flex flex-col items-center justify-center overflow-hidden">
       <span className="sr-only">
-        Reasoning Lens visualization showing decision center and identified blind spot areas: {assumptionsCount} assumptions, {missingCount} missing factors, {risksCount} risks, {conflictsCount} trade-offs, and {questionsCount} critical questions.
+        Reasoning Lens visualization showing decision center and interactive orbital nodes: {assumptionsCount} assumptions, {missingCount} missing factors, {risksCount} risks, {conflictsCount} trade-offs, and {questionsCount} critical questions.
       </span>
 
       {/* SVG Orbital Lens */}
@@ -64,56 +73,91 @@ export const LensVisualization: React.FC<LensVisualizationProps> = ({
           </p>
         </div>
 
-        {/* Orbital Nodes (Revealed Blind Spots) */}
+        {/* Orbital Nodes (Interactive Buttons) */}
         {/* Node 1: Assumptions (Top) */}
-        <div className="absolute top-2 left-1/2 -translate-x-1/2 z-20 flex flex-col items-center">
+        <button
+          type="button"
+          onClick={() => handleNodeClick('assumptions')}
+          className={`absolute top-2 left-1/2 -translate-x-1/2 z-20 flex flex-col items-center focus:outline-none transition-transform hover:scale-110 ${
+            activeNode === 'assumptions' ? 'scale-110' : ''
+          }`}
+          aria-label={`View ${assumptionsCount} unstated assumptions`}
+        >
           <div className="w-10 h-10 rounded-full bg-amber-50 border-2 border-amber-500 text-amber-700 flex items-center justify-center shadow-md">
             <CheckCircle2 className="w-5 h-5" aria-hidden="true" />
           </div>
-          <span className="mt-1 text-[11px] font-semibold text-amber-900 bg-amber-50/90 px-2 py-0.5 rounded-full border border-amber-200">
+          <span className="mt-1 text-[11px] font-semibold text-amber-900 bg-amber-50/90 px-2 py-0.5 rounded-full border border-amber-200 shadow-2xs">
             {assumptionsCount} Assumptions
           </span>
-        </div>
+        </button>
 
         {/* Node 2: Missing Factors (Top Right) */}
-        <div className="absolute top-16 right-2 z-20 flex flex-col items-center">
+        <button
+          type="button"
+          onClick={() => handleNodeClick('missing')}
+          className={`absolute top-16 right-2 z-20 flex flex-col items-center focus:outline-none transition-transform hover:scale-110 ${
+            activeNode === 'missing' ? 'scale-110' : ''
+          }`}
+          aria-label={`View ${missingCount} missing factors`}
+        >
           <div className="w-10 h-10 rounded-full bg-indigo-50 border-2 border-indigo-600 text-indigo-700 flex items-center justify-center shadow-md">
             <EyeOff className="w-5 h-5" aria-hidden="true" />
           </div>
-          <span className="mt-1 text-[11px] font-semibold text-indigo-900 bg-indigo-50/90 px-2 py-0.5 rounded-full border border-indigo-200">
+          <span className="mt-1 text-[11px] font-semibold text-indigo-900 bg-indigo-50/90 px-2 py-0.5 rounded-full border border-indigo-200 shadow-2xs">
             {missingCount} Missing
           </span>
-        </div>
+        </button>
 
         {/* Node 3: Risks (Bottom Right) */}
-        <div className="absolute bottom-10 right-4 z-20 flex flex-col items-center">
+        <button
+          type="button"
+          onClick={() => handleNodeClick('risks')}
+          className={`absolute bottom-10 right-4 z-20 flex flex-col items-center focus:outline-none transition-transform hover:scale-110 ${
+            activeNode === 'risks' ? 'scale-110' : ''
+          }`}
+          aria-label={`View ${risksCount} risks`}
+        >
           <div className="w-10 h-10 rounded-full bg-rose-50 border-2 border-rose-500 text-rose-700 flex items-center justify-center shadow-md">
             <AlertTriangle className="w-5 h-5" aria-hidden="true" />
           </div>
-          <span className="mt-1 text-[11px] font-semibold text-rose-900 bg-rose-50/90 px-2 py-0.5 rounded-full border border-rose-200">
+          <span className="mt-1 text-[11px] font-semibold text-rose-900 bg-rose-50/90 px-2 py-0.5 rounded-full border border-rose-200 shadow-2xs">
             {risksCount} Risks
           </span>
-        </div>
+        </button>
 
         {/* Node 4: Trade-offs (Bottom Left) */}
-        <div className="absolute bottom-10 left-4 z-20 flex flex-col items-center">
+        <button
+          type="button"
+          onClick={() => handleNodeClick('conflicts')}
+          className={`absolute bottom-10 left-4 z-20 flex flex-col items-center focus:outline-none transition-transform hover:scale-110 ${
+            activeNode === 'conflicts' ? 'scale-110' : ''
+          }`}
+          aria-label={`View ${conflictsCount} trade-offs`}
+        >
           <div className="w-10 h-10 rounded-full bg-emerald-50 border-2 border-emerald-600 text-emerald-700 flex items-center justify-center shadow-md">
             <Scale className="w-5 h-5" aria-hidden="true" />
           </div>
-          <span className="mt-1 text-[11px] font-semibold text-emerald-900 bg-emerald-50/90 px-2 py-0.5 rounded-full border border-emerald-200">
+          <span className="mt-1 text-[11px] font-semibold text-emerald-900 bg-emerald-50/90 px-2 py-0.5 rounded-full border border-emerald-200 shadow-2xs">
             {conflictsCount} Trade-off
           </span>
-        </div>
+        </button>
 
         {/* Node 5: Critical Questions (Top Left) */}
-        <div className="absolute top-16 left-2 z-20 flex flex-col items-center">
+        <button
+          type="button"
+          onClick={() => handleNodeClick('questions')}
+          className={`absolute top-16 left-2 z-20 flex flex-col items-center focus:outline-none transition-transform hover:scale-110 ${
+            activeNode === 'questions' ? 'scale-110' : ''
+          }`}
+          aria-label={`View ${questionsCount} critical questions`}
+        >
           <div className="w-10 h-10 rounded-full bg-sky-50 border-2 border-sky-500 text-sky-700 flex items-center justify-center shadow-md">
             <HelpCircle className="w-5 h-5" aria-hidden="true" />
           </div>
-          <span className="mt-1 text-[11px] font-semibold text-sky-900 bg-sky-50/90 px-2 py-0.5 rounded-full border border-sky-200">
+          <span className="mt-1 text-[11px] font-semibold text-sky-900 bg-sky-50/90 px-2 py-0.5 rounded-full border border-sky-200 shadow-2xs">
             {questionsCount} Questions
           </span>
-        </div>
+        </button>
       </div>
 
       <div className="mt-4 text-center">
@@ -121,7 +165,7 @@ export const LensVisualization: React.FC<LensVisualizationProps> = ({
           {isAnalyzing ? (
             <span className="animate-pulse text-brand-600 font-semibold">Scanning reasoning perimeter for unstated factors...</span>
           ) : (
-            <span>The Reasoning Lens reveals factors outside your initial focus ring.</span>
+            <span>Click any orbital node to jump directly to its breakdown.</span>
           )}
         </p>
       </div>

@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
-import { DecisionInput } from '../types/decision';
+import { DecisionInput, ScenarioCategory } from '../types/decision';
 import { PRESET_EXAMPLES } from '../domain/presetExamples';
-import { Sparkles, ChevronDown, ChevronUp, ArrowRight } from 'lucide-react';
+import { SCENARIO_MODES } from '../domain/scenarioModes';
+import { Sparkles, ChevronDown, ChevronUp, ArrowRight, Compass } from 'lucide-react';
 
 interface DecisionFormProps {
   onSubmit: (input: DecisionInput) => void;
@@ -13,6 +14,7 @@ export const DecisionForm: React.FC<DecisionFormProps> = ({ onSubmit, isAnalyzin
   const [beliefs, setBeliefs] = useState('');
   const [context, setContext] = useState('');
   const [factors, setFactors] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState<ScenarioCategory | 'ALL'>('ALL');
   const [showOptionalContext, setShowOptionalContext] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
 
@@ -28,6 +30,7 @@ export const DecisionForm: React.FC<DecisionFormProps> = ({ onSubmit, isAnalyzin
       beliefs: beliefs.trim() || undefined,
       context: context.trim() || undefined,
       factors: factors.trim() || undefined,
+      scenarioCategory: selectedCategory !== 'ALL' ? selectedCategory : undefined,
     });
   };
 
@@ -38,32 +41,69 @@ export const DecisionForm: React.FC<DecisionFormProps> = ({ onSubmit, isAnalyzin
       setBeliefs(preset.input.beliefs || '');
       setContext(preset.input.context || '');
       setFactors(preset.input.factors || '');
+      if (preset.category) setSelectedCategory(preset.category);
       setShowOptionalContext(true);
       setErrorMessage('');
     }
   };
 
+  const filteredPresets = selectedCategory === 'ALL'
+    ? PRESET_EXAMPLES
+    : PRESET_EXAMPLES.filter((p) => p.category === selectedCategory);
+
   return (
     <div className="w-full max-w-2xl mx-auto">
       {/* Hero Headline & Subtext */}
       <div className="text-center mb-8">
-        <h1 className="text-4xl sm:text-5xl font-extrabold text-brand-950 font-serif tracking-tight leading-tight">
-          See what you're missing <br className="hidden sm:inline" />
-          before you decide.
+        <h1 className="text-4xl sm:text-5xl font-extrabold text-brand-950 font-serif tracking-tight leading-tight uppercase">
+          SEE WHAT YOU'RE MISSING <br className="hidden sm:inline" />
+          BEFORE YOU DECIDE.
         </h1>
         <p className="mt-4 text-base sm:text-lg text-slate-600 max-w-xl mx-auto leading-relaxed">
           Describe a decision you're considering. BlindLens examines the reasoning behind it and surfaces assumptions, missing factors, risks, conflicts, and questions worth exploring.
         </p>
 
+        {/* Scenario Category Selector */}
+        <div className="mt-6 flex items-center justify-center flex-wrap gap-2">
+          <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider flex items-center mr-1">
+            <Compass className="w-3.5 h-3.5 mr-1 text-indigo-600" /> Scenario Mode:
+          </span>
+          <button
+            type="button"
+            onClick={() => setSelectedCategory('ALL')}
+            className={`px-3 py-1 rounded-full text-xs font-semibold transition-colors ${
+              selectedCategory === 'ALL'
+                ? 'bg-brand-900 text-white shadow-2xs'
+                : 'bg-white text-slate-700 border border-canvas-300 hover:bg-canvas-100'
+            }`}
+          >
+            All Modes
+          </button>
+          {SCENARIO_MODES.map((mode) => (
+            <button
+              key={mode.category}
+              type="button"
+              onClick={() => setSelectedCategory(mode.category)}
+              className={`px-3 py-1 rounded-full text-xs font-semibold transition-colors ${
+                selectedCategory === mode.category
+                  ? 'bg-brand-900 text-white shadow-2xs'
+                  : 'bg-white text-slate-700 border border-canvas-300 hover:bg-canvas-100'
+              }`}
+            >
+              {mode.label}
+            </button>
+          ))}
+        </div>
+
         {/* Preset Chips */}
-        <div className="mt-6 flex flex-wrap items-center justify-center gap-2">
+        <div className="mt-4 flex flex-wrap items-center justify-center gap-2">
           <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider mr-1">Try Example:</span>
-          {PRESET_EXAMPLES.map((preset) => (
+          {filteredPresets.map((preset) => (
             <button
               key={preset.id}
               type="button"
               onClick={() => handleSelectPreset(preset.id)}
-              className="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-medium bg-white text-brand-900 border border-canvas-300 hover:border-brand-500 hover:bg-brand-50 transition-all shadow-sm focus:outline-none focus:ring-2 focus:ring-brand-500"
+              className="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-medium bg-white text-brand-900 border border-canvas-300 hover:border-brand-500 hover:bg-brand-50 transition-all shadow-2xs focus:outline-none focus:ring-2 focus:ring-brand-500"
             >
               <Sparkles className="w-3 h-3 text-amber-500 mr-1.5" aria-hidden="true" />
               {preset.title}
@@ -73,7 +113,7 @@ export const DecisionForm: React.FC<DecisionFormProps> = ({ onSubmit, isAnalyzin
       </div>
 
       {/* Main Input Form */}
-      <form onSubmit={handleSubmit} className="bg-white rounded-2xl border border-canvas-200 shadow-sm p-6 sm:p-8 space-y-6">
+      <form onSubmit={handleSubmit} className="bg-white rounded-3xl border border-canvas-200 shadow-sm p-6 sm:p-8 space-y-6">
         {/* Field 1: Decision */}
         <div>
           <label htmlFor="decision-input" className="block text-sm font-bold text-brand-950 uppercase tracking-wide mb-2">
